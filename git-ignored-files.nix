@@ -1,7 +1,7 @@
 # : Path -> [ Path ]
 # | Get a list of paths in a git repo that are ignored by that repo's
 # .gitignore
-exec: { git, writeScriptBin, bash, coreutils }:
+exec: { git, writeScriptBin, bash, coreutils, findutils }:
   let script = writeScriptBin "git-ignored-files"
         ''
           #!${bash}/bin/bash -e
@@ -13,7 +13,8 @@ exec: { git, writeScriptBin, bash, coreutils }:
             cd "$(${coreutils}/bin/dirname "$root")"
           fi
           echo "["
-          find "$root" | ${git}/bin/git check-ignore --stdin
+          ${findutils}/bin/find "$root" | \
+            ${git}/bin/git check-ignore --stdin
 	  echo "]"
         '';
   in root: exec [ "${script}/bin/git-ignored-files" root ]
